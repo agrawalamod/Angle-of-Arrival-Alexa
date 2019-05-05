@@ -1,15 +1,15 @@
 close all;
 clear all;
 
-x_loc = 0;
-y_loc = 0 ;
+x_loc = 5;
+y_loc = 5;
 d = 4.75e-2;
 c = 343;
-freq =1000;
-lambda = c/freq;
 ref_mic = 5;
 ang = [120 60 0 300 240 180];
 mic_loc = [x_loc+d*cosd(ang') y_loc+ d*sind(ang')];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 mic_dis = [];
 for i=1:6
@@ -22,22 +22,19 @@ for tau = 0:359
     tau_vec = [cosd(tau) sind(tau)];
     direc_vecs = [direc_vecs; tau_vec/norm(tau_vec)];
 end
+
 mic_dis_projections = mic_dis * direc_vecs';
-save('mic_dis_projections');
+save('mic_dis_projections.mat', 'mic_dis_projections');
 
 time_diff = mic_dis_projections/c;
-phase_diff = mic_dis_projections*2*pi/lambda;
-
-M = exp(1i*phase_diff');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Process y
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[raw_y,Fs] = audioread('./train/A03_X02.wav');
+[raw_y,Fs] = audioread('./train/A03_X01.wav');
 load('outputAngle.mat');
 raw_y = raw_y(:,1:6);
-passfreq = [500 1500];
 
 [first_mic, mic_delays] = first_mic_solver(raw_y);
 
@@ -45,16 +42,19 @@ ref_sig = raw_y(:,first_mic(1));
 [max_val, max_indx] = max(ref_sig);
 timeband = [max_indx-500 max_indx+25000];
 
+%chops the signal
 raw_y=raw_y(timeband(1):timeband(2),:);
 
+%bandpass signal
+passfreq = [500 1500];
 for idx = 1:6 
     raw_y(:,idx) = bandpass(raw_y(:,idx), passfreq, Fs);
 end
 
-
+%{
 final_result =[];
 for freq = 500:1:1500
-    result = aoa(raw_y, freq, M, Fs);
+    result = aoa(raw_y, freq, c, Fs, mic_dis_projections);
     if(length(result)>1)
         diff_result = abs(result-ang(first_mic(1)));
         [min_val, min_indx] = min(diff_result);
@@ -68,9 +68,40 @@ for freq = 500:1:1500
 end
 disp(outputAngle(2,:));
 disp(mean(final_result));
+%}
 
-function [result] = aoa(raw_y, freq, M, Fs)
+final_result = time_aoa(raw_y, c, Fs, ref_mic, mic_dis_projections);
+disp(outputAngle(1,:));
+[pks, locs] = findpeaks(final_result, 'MinPeakHeight', 0.3, 'MinPeakDistance', 20);
+disp([locs locs+180]);
+figure;
+plot(0:359, final_result);
+hold on;
+scatter(locs,pks, 'v');
+
+function [result] = time_aoa(raw_y, c, Fs, ref_mic, mic_dis_projections)
+    time_diff = mic_dis_projections/c;
+    ref_signal = raw_y(:,ref_mic);
+    
+    spec_result= [];
+    for idx=1:360
+        disp(idx);
+        delays=time_diff(:,idx);
+        delayed_signal=[];
+        for idx2=1:6
+            delayed_signal = [delayed_signal; delayseq(ref_signal,delays(idx2),Fs)];
+        end
+        signal_sum = norm(sum(delayed_signal,1));
+        spec_result = [spec_result signal_sum];
+    end
+    %[pks,locs] = findpeaks(spec_result);
+    result = spec_result; 
+end
+
+
+function [result] = aoa(raw_y, freq, c, Fs, mic_dis_projections)
     disp(freq);
+    lambda = c/freq;
     zmag=[];
     zang=[];
 
@@ -89,13 +120,11 @@ function [result] = aoa(raw_y, freq, M, Fs)
         fy = [fy; freq_y'];
     end
 
-%[first_mic, mic_delays] = first_mic_solver(raw_y);
-%calc_ref_mic = first_mic(1);
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Find Angle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+    phase_diff = mic_dis_projections*2*pi./lambda;
+    M = exp(1i*phase_diff');
     spectrum = (M * fy)'; % 360x6 * 6x1
     spec_result= [];
     for idx =1:size(spectrum,2)
@@ -109,8 +138,6 @@ function [result] = aoa(raw_y, freq, M, Fs)
     %disp([locs, calc_ref_mic, ang(calc_ref_mic)]);
     %disp(outputAngle(2,:));
 end
-
-
 
 
 function [first_mic, mic_delays] = first_mic_solver(y)
