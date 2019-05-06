@@ -26,9 +26,9 @@ def aoa(y, Fs, azi_2d, ele_2d):
     for pair in ch_pairs:
         taus.append(gccphat(y[:,pair[0]], y[:,pair[1]],Fs))
     taus = np.array(taus)
-    print("-------------")
-    print(taus)
     dists = taus*V_SOUND
+    print("-----dists------")
+    print(dists)
 
     #print(dists*100)
     scores = np.zeros(np.shape(azi_2d))

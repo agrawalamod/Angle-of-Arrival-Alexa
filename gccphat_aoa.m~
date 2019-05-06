@@ -80,25 +80,32 @@ function call_rest_of_code(raw_y,Fs,array_index, signal_index)
     [azi_2d, ele_2d] = meshgrid(azi_grid,ele_grid);
     
     scores = zeros(size(azi_2d));
-    
+    scores2 = zeros(size(azi_2d));
+
     
     for A=1:size(azi_2d,2)
         for E=1:size(azi_2d,1)
             azi= azi_2d(E,A)*pi/180;
             ele = ele_2d(E,A)*pi/180;
             vec = [cos(azi)*cos(ele) sin(azi)*cos(ele) sin(ele)];
-            scores(E,A)= 1/norm(mic_dis*vec' - fy_dis2);
+            scores(E,A)= 1/norm(mic_dis*vec' - fy_dis);
+            scores2(E,A)= 1/norm(mic_dis*vec' - fy_dis2);
             
         end
     end
-    %imagesc(scores);
+    %figure;
+    %imagesc(scores2);
     result = sum(scores,1);
+    result2 = sum(scores2,1);
     %figure;
     %plot((1:720)./2, result);
     %hold on;
     [max_val, max_indx] = max(result);
+    [max_val2, max_indx2] = max(result2);
+
     %scatter(max_indx/2, max_val, 'v');
-    disp(max_indx/2);
+    err = 
+    disp([max_indx/2 max_indx2/2]);
     disp(outputAngle(signal_index,array_index));
     
     

@@ -1,23 +1,26 @@
 close all;
 clear all;
 
-for signal_index =10
-    for array_index=3
+errors =[];
+
+for signal_index =1:10
+    for array_index=1:3
         file_name = ['./train/A0' num2str(array_index) '_X0' num2str(signal_index) '.wav'];
         ans_X=signal_index;
         [raw_y,Fs] = audioread(file_name);
         disp(file_name);
-        call_rest_of_code(raw_y,Fs,array_index, signal_index);
+        error = call_rest_of_code(raw_y,Fs,array_index, signal_index);
+        errors=
         
     end
 end
 
 
 
-function call_rest_of_code(raw_y,Fs,array_index, signal_index)
+function [errors] = call_rest_of_code(raw_y,Fs,array_index, signal_index)
     x_loc = 0;
     y_loc = 0;
-    d = 4.75e-2;
+    d = 4.5e-2;
     c = 343;
     ref_mic = 1;
     ang = [120 60 0 300 240 180];
@@ -26,9 +29,11 @@ function call_rest_of_code(raw_y,Fs,array_index, signal_index)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     mic_dis = [];
-    for i=2:6
-        dis_vec = [mic_loc(i,1)-mic_loc(ref_mic,1) mic_loc(i,2)-mic_loc(ref_mic,2) 0];
-        mic_dis = [mic_dis; dis_vec];
+    for ref_mic = 1:6
+        for i=1:6
+            dis_vec = [mic_loc(i,1)-mic_loc(ref_mic,1) mic_loc(i,2)-mic_loc(ref_mic,2) 0];
+            mic_dis = [mic_dis; dis_vec];
+        end
     end
 
     direc_vecs = [];
@@ -55,15 +60,17 @@ function call_rest_of_code(raw_y,Fs,array_index, signal_index)
     %fy = raw_y(timeband(1):timeband(2),:);
     fy = raw_y;
 
-    refsig = fy(:,ref_mic);
 
     fy_dis = [];
     fy_dis2 = [];
-    for idx=2:6
-        tau = gccphat(refsig, fy(:,idx), Fs);
-        tau2 = interpolated_gccphat(refsig, fy(:,idx), Fs);
-        fy_dis = [fy_dis; tau*c];
-        fy_dis2 = [fy_dis2; tau2*c];
+    for ref_mic = 1:6
+        refsig = fy(:,ref_mic);
+        for idx=1:6
+            tau = gccphat(refsig, fy(:,idx), Fs);
+            tau2 = interpolated_gccphat(refsig, fy(:,idx), Fs);
+            fy_dis = [fy_dis; tau*c];
+            fy_dis2 = [fy_dis2; tau2*c];
+        end
     end
     %{
     result = [];
@@ -74,8 +81,8 @@ function call_rest_of_code(raw_y,Fs,array_index, signal_index)
     end
 %}
     
-    azi_grid = linspace(0,360,360);
-    ele_grid = linspace(0,90,360);
+    azi_grid = linspace(0,360,720);
+    ele_grid = linspace(0,90,180);
     
     [azi_2d, ele_2d] = meshgrid(azi_grid,ele_grid);
     
@@ -93,8 +100,8 @@ function call_rest_of_code(raw_y,Fs,array_index, signal_index)
             
         end
     end
-    figure;
-    imagesc(scores2);
+    %figure;
+    %imagesc(scores2);
     result = sum(scores,1);
     result2 = sum(scores2,1);
     %figure;
@@ -103,13 +110,14 @@ function call_rest_of_code(raw_y,Fs,array_index, signal_index)
     [max_val, max_indx] = max(result);
     [max_val2, max_indx2] = max(result2);
     
-    deg = max_indx;
-    deg2 = max_indx2;
+    deg = max_indx/2;
+    deg2 = max_indx2/2;
 
     
     %scatter(max_indx/2, max_val, 'v');
     err = abs(outputAngle(signal_index,array_index)- deg);
     err2 = abs(outputAngle(signal_index,array_index)-deg2);
+    errors=[err err2];
     disp([deg deg2 err err2]);
     disp(outputAngle(signal_index,array_index));
     
@@ -162,8 +170,8 @@ function [tau] = interpolated_gccphat(y1, y2, Fs)
     
     x = horzcat(Rphat(N+1:end),Rphat(1:N));
     lag = -N:N;
-    figure;
-    plot(1:size(x,2),x);
+    %figure;
+    %plot(1:size(x,2),x);
     
    %interpolation
    %[corr_val, corr_index] = max(x(N-8:N+8));
@@ -173,6 +181,9 @@ function [tau] = interpolated_gccphat(y1, y2, Fs)
    
    dk = 0.5*(x(corr_index-1) - x(corr_index+1)) / (x(corr_index+1) + x(corr_index-1) - 2*x(corr_index));
    if(abs(dk)>=1)
+       dk=0;
+   end
+   if(tau_approx==0)
        dk=0;
    end
    t_offset = dk/Fs;
