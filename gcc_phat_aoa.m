@@ -1,5 +1,5 @@
 
-function [deg1, deg2] = gcc_phat_aoa(fy, Fs, c, res, azi_2d, ele_2d, mic_dis)
+function [deg1, deg2] = gcc_phat_aoa(fy, Fs, c, res, azi_2d, ele_2d, mic_dis, plotting, figname)
     fy_tau1 = [];
     fy_tau2 = [];
     for ref_mic = 1:6
@@ -32,6 +32,15 @@ function [deg1, deg2] = gcc_phat_aoa(fy, Fs, c, res, azi_2d, ele_2d, mic_dis)
             scores1(E,A)= 1/norm(mic_dis*vec' - fy_dis1);
             scores2(E,A)= 1/norm(mic_dis*vec' - fy_dis2);            
         end
+    end
+    
+    if(plotting==1)
+        fig = figure('visible','off');
+        imagesc(scores2);
+        xlabel('Azimuth (0-360)');
+        ylabel('Elevation (0-90)');
+        title(['AoA space search: 1/distance - ' figname]);
+        saveas(fig, ['./results/images/' figname '.png']);
     end
     
     result1 = sum(scores1,1);

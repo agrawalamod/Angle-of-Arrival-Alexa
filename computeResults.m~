@@ -4,12 +4,12 @@ clear all;
 %% Contants
 c = 343;
 d = 4.5e-2;
-res = 0.1;
+res = 0.25;
 
 %% Run once
 [mic_dis, azi_2d, ele_2d] = system_setup(d, res);
 
-
+%{
 %% Training Data
 path = './train/';
 mic_arrays=[2.38 4.90; 1.27 3.38; 2.93 1.30];
@@ -31,7 +31,7 @@ for train_signal = 1:10
         disp(filepath);
         [y,Fs] = audioread(filepath);
         
-        [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis, 1, filename);
+        [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis);
         angles1 = [angles1 calc_angle1];
         angles2 = [angles2 calc_angle2];
     end    
@@ -46,7 +46,7 @@ train_location_result = [train_result(:,1) train_result(:,8:10)];
 train_angle_result = [train_result(:,1) train_result(:,2:7)];
 dlmwrite('./results/train/location.csv', train_location_result, '\t');
 dlmwrite('./results/train/angles.csv', train_angle_result, '\t');
-
+%}
 
 
 %% Testing Data 1
@@ -67,7 +67,7 @@ for test_signal = 11:15
         filepath = [path filename];
         disp(filepath);
         [y,Fs] = audioread(filepath);
-        [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis, 1, filename);
+        [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis, 1);
         angles1 = [angles1 calc_angle1];
         angles2 = [angles2 calc_angle2];
     end    
@@ -101,7 +101,7 @@ for test_signal = 16:20
         filepath = [path filename];
         disp(filepath);
         [y,Fs] = audioread(filepath);
-        [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis, 1, filename);
+        [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis);
         angles1 = [angles1 calc_angle1];
         angles2 = [angles2 calc_angle2];
     end    

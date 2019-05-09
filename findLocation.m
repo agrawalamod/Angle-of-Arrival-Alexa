@@ -72,6 +72,7 @@ function [pointCoord] = findLocation(angles, arrays, d, plotting, sig_name)
 
         plot([line2r1(1),line2r2(1)], [line2r1(2),line2r2(2)], 'b');
         plot([line3r1(1),line3r2(1)], [line3r1(2),line3r2(2)],'Color', [0.4940 0.1840 0.5560]);
+        
         %%add point to plot
         str = {'A1','A2','A3',['(' num2str(pointCoord(1)) ', ' num2str(pointCoord(2)) ')']};
         scatter(pointCoord(1), pointCoord(2), 24, 'fill', 'MarkerFaceColor',[0.4660 0.6740 0.1880]);
@@ -80,7 +81,7 @@ function [pointCoord] = findLocation(angles, arrays, d, plotting, sig_name)
         ylim([0.00 6.00]);
         title([sig_name '- ' 'User Location: ' '(' num2str(pointCoord(1)) ', ' num2str(pointCoord(2)) ')']);
         hold off
-        saveas(fig, ['./results/' sig_name '.png']);
+        saveas(fig, ['./results/images/' sig_name '.png']);
         
     end
 end

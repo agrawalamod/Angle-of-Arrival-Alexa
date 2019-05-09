@@ -26,7 +26,7 @@ for array_index=1:3
     filename = ['A0' num2str(array_index) '_X' signal_num '.wav'];
     filepath = [path filename];
     [y,Fs] = audioread(filepath);
-    [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis);
+    [calc_angle1, calc_angle2] = gcc_phat_aoa(y, Fs, c, res, azi_2d, ele_2d, mic_dis, 1, ['TEST-' filename]);
     angles1 = [angles1 calc_angle1];
     angles2 = [angles2 calc_angle2];
 end
