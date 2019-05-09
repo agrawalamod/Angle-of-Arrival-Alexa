@@ -82,7 +82,7 @@ def gccphat(y1, y2, Fs):
 
 RESOLUTION = 1.0
 
-fs, y = wavfile.read('A02_X04.wav')
+fs, y = wavfile.read('A01_X09.wav')
 y = y[:,0:6]
 
 

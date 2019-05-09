@@ -20,9 +20,8 @@ function [errors] = call_rest_of_code(raw_y,Fs,array_index, signal_index)
     y_loc = 0;
     d = 4.5e-2;
     c = 343;
-    ref_mic = 1;
     ang = [120 60 0 300 240 180];
-    mic_loc = [x_loc+d*cosd(ang') y_loc+ d*sind(ang')];
+    mic_loc = [x_loc+d*cosd(ang') y_loc+d*sind(ang')];
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -64,8 +63,13 @@ function [errors] = call_rest_of_code(raw_y,Fs,array_index, signal_index)
     for ref_mic = 1:6
         refsig = fy(:,ref_mic);
         for idx=1:6
-            tau = gccphat(refsig, fy(:,idx), Fs);
-            tau2 = interpolated_gccphat(refsig, fy(:,idx), Fs);
+            if(ref_mic == idx)
+                tau=0;
+                tau2=0;
+            else
+                tau = gccphat(refsig, fy(:,idx), Fs);
+                tau2 = interpolated_gccphat(refsig, fy(:,idx), Fs);
+            end
             fy_dis = [fy_dis; tau*c];
             fy_dis2 = [fy_dis2; tau2*c];
         end
@@ -78,9 +82,9 @@ function [errors] = call_rest_of_code(raw_y,Fs,array_index, signal_index)
         result2 = [result2 norm(mic_dis_projections(:,alpha)-fy_dis2)];
     end
 %}
-    
-    azi_grid = linspace(0,360,720);
-    ele_grid = linspace(0,90,180);
+    res = 0.1;
+    azi_grid = linspace(0,360,360/res);
+    ele_grid = linspace(0,90,90/res);
     
     [azi_2d, ele_2d] = meshgrid(azi_grid,ele_grid);
     
@@ -100,6 +104,9 @@ function [errors] = call_rest_of_code(raw_y,Fs,array_index, signal_index)
     end
     %figure;
     %imagesc(scores2);
+    %xlabel('Azimuth (0-360)');
+    %ylabel('Elevation (0-90)');
+    %title('AoA space search: 1/distance');
     result = sum(scores,1);
     result2 = sum(scores2,1);
     %figure;
@@ -108,8 +115,8 @@ function [errors] = call_rest_of_code(raw_y,Fs,array_index, signal_index)
     [max_val, max_indx] = max(result);
     [max_val2, max_indx2] = max(result2);
     
-    deg = max_indx/2;
-    deg2 = max_indx2/2;
+    deg = res*max_indx;
+    deg2 = res*max_indx2;
 
     
     %scatter(max_indx/2, max_val, 'v');
@@ -181,9 +188,11 @@ function [tau] = interpolated_gccphat(y1, y2, Fs)
    if(abs(dk)>=1)
        dk=0;
    end
+   %{
    if(tau_approx==0)
        dk=0;
    end
+   %}
    t_offset = dk/Fs;
    tau = tau_approx + t_offset;
 end
