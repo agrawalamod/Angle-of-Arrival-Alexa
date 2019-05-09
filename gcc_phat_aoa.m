@@ -45,6 +45,9 @@ function [deg1, deg2] = gcc_phat_aoa(fy, Fs, c, res, azi_2d, ele_2d, mic_dis, pl
     
     result1 = sum(scores1,1);
     result2 = sum(scores2,1);
+    %result1 = scores2(300,:);
+    %result2 = scores2(300,:);
+    
     
     [max_val1, max_indx1] = max(result1);
     [max_val2, max_indx2] = max(result2);

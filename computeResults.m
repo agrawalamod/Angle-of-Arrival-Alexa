@@ -9,7 +9,7 @@ res = 0.1;
 %% Run once
 [mic_dis, azi_2d, ele_2d] = system_setup(d, res);
 
-
+%{
 %% Training Data
 path = './train/';
 mic_arrays=[2.38 4.90; 1.27 3.38; 2.93 1.30];
@@ -47,8 +47,9 @@ train_angle_result = [train_result(:,1) train_result(:,2:7)];
 dlmwrite('./results/train/location.csv', train_location_result, '\t');
 dlmwrite('./results/train/angles.csv', train_angle_result, '\t');
 
+%}
 
-
+%{
 %% Testing Data 1
 path = './test/';
 mic_arrays=[2.38 4.90; 1.27 3.38; 2.93 1.30];
@@ -82,7 +83,7 @@ test_angle_result = [test_result(:,1) test_result(:,2:4)];
 dlmwrite('./results/test/location.csv', test_location_result, '\t');
 dlmwrite('./results/test/angles.csv', test_angle_result, '\t');
 
-%{
+%}
 %% Testing Data 3
 path = './test_exam/';
 mic_arrays=[2.38 4.90; 1.27 3.38; 2.93 1.30];
@@ -105,7 +106,7 @@ for test_signal = 16:20
         angles1 = [angles1 calc_angle1];
         angles2 = [angles2 calc_angle2];
     end    
-    location = findLocation(angles2, mic_arrays, d, 0, sig_name)';
+    location = findLocation(angles2, mic_arrays, d, 1, sig_name)';
     result = [test_signal angles2 location];
     testex_result = [testex_result; result];
 end
@@ -115,5 +116,5 @@ testex_angle_result = [testex_result(:,1) testex_result(:,2:4)];
 
 dlmwrite('./results/test_exam/location.csv', testex_location_result, '\t');
 dlmwrite('./results/test_exam/angles.csv', testex_angle_result, '\t');
-%}
+
 
