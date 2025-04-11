@@ -17,8 +17,13 @@ load('outputLocation.mat');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Run AoA on three signals
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-path = './test_exam/';
-signal_num = '20';
+%path = './test_exam/';
+%signal_num = '20';
+
+path = './train/';
+type = 'train-';Li
+signal_num = '01';
+
 
 angles1 = [];
 angles2 = [];
@@ -43,7 +48,7 @@ disp(angles2);
 % Find and plot location
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mic_arrays=[2.38 4.90; 1.27 3.38; 2.93 1.30];
-[location] = findLocation(angles2,mic_arrays, d, 1, ['TEST-X' signal_num]);
+[location] = findLocation(angles2,mic_arrays, d, 1, [type signal_num]);
 %disp(outputLocation(str2num(signal_num),:));
 disp(location');
 

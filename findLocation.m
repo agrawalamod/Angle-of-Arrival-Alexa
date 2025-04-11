@@ -81,7 +81,7 @@ function [pointCoord] = findLocation(angles, arrays, d, plotting, sig_name)
         ylim([0.00 6.00]);
         title([sig_name '- ' 'User Location: ' '(' num2str(pointCoord(1)) ', ' num2str(pointCoord(2)) ')']);
         hold off
-        saveas(fig, ['./results/images/' sig_name '.png']);
+        saveas(fig, ['./results/images_updated/' sig_name '.png']);
         
     end
 end

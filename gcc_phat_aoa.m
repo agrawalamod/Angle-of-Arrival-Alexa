@@ -1,4 +1,3 @@
-
 function [deg1, deg2] = gcc_phat_aoa(fy, Fs, c, res, azi_2d, ele_2d, mic_dis, plotting, figname)
     fy_tau1 = [];
     fy_tau2 = [];
@@ -9,9 +8,9 @@ function [deg1, deg2] = gcc_phat_aoa(fy, Fs, c, res, azi_2d, ele_2d, mic_dis, pl
                 tau1=0;
                 tau2=0;
             else
-                %tau1 = gccphat(refsig, fy(:,idx), Fs);
+                tau1 = gccphat(refsig, fy(:,idx), Fs);
                 tau2 = interpolated_gccphat(refsig, fy(:,idx), Fs);
-                tau1=tau2;
+                
             end
             fy_tau1 = [fy_tau1; tau1];
             fy_tau2 = [fy_tau2; tau2];
@@ -40,7 +39,7 @@ function [deg1, deg2] = gcc_phat_aoa(fy, Fs, c, res, azi_2d, ele_2d, mic_dis, pl
         xlabel('Azimuth (0-360)');
         ylabel('Elevation (0-90)');
         title(['AoA space search: 1/distance - ' figname]);
-        saveas(fig, ['./results/images/' figname '.png']);
+        saveas(fig, ['./results/images_updated/' figname '.png']);
     end
     
     result1 = sum(scores1,1);

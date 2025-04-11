@@ -1,14 +1,13 @@
 close all;
 clear all;
 
-for signal_index =10
-    for array_index=3
-        file_name = ['./train/A0' num2str(array_index) '_X0' num2str(signal_index) '.wav'];
-        ans_X=signal_index;
-        [raw_y,Fs] = audioread(file_name);
+for signal_index = 1:10
+    for array_index = 1:3
+        file_name = ['./train/A' sprintf('%02d', array_index) '_X' sprintf('%02d', signal_index) '.wav'];
+        ans_X = signal_index;
+        [raw_y, Fs] = audioread(file_name);
         disp(file_name);
-        call_rest_of_code(raw_y,Fs,array_index, signal_index);
-        
+        call_rest_of_code(raw_y, Fs, array_index, signal_index);
     end
 end
 
@@ -105,11 +104,12 @@ function call_rest_of_code(raw_y,Fs,array_index, signal_index)
     
     deg = max_indx;
     deg2 = max_indx2;
+    disp([deg deg2])
 
     
     %scatter(max_indx/2, max_val, 'v');
     err = abs(outputAngle(signal_index,array_index)- deg);
-    err2 = abs(outputAngle(signal_index,array_index)-deg2);
+    err2 = abs(outputAngle(signal_index,array_index)- deg2);
     disp([deg deg2 err err2]);
     disp(outputAngle(signal_index,array_index));
     
